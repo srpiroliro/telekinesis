@@ -36,10 +36,10 @@ fn wait_new_message(last_id:i64)->Message{
     let url = format!("https://api.telegram.org/bot{}/getUpdates?chat_id={}&offset={}", API_KEY, CHAT_ID, last_id);
     let client = reqwest::blocking::Client::new();
 
-    let mut message_contents:String=String::new();
+    let message_contents:String;
     let mut message_id:i64=last_id;
 
-    while true {
+    loop {
         let response: Value = client.get(&url)
                                     .send()
                                     .unwrap()
@@ -48,19 +48,14 @@ fn wait_new_message(last_id:i64)->Message{
                                 
         let updates=response["result"].as_array().unwrap();
         let last_update=&updates[updates.len()-1];
-
-        println!("{} | {} - {}", updates.len(), updates[updates.len()-1]["update_id"].as_i64().unwrap(), updates[0]["update_id"].as_i64().unwrap());
-
         let tmp_id=last_update["update_id"].as_i64().unwrap();
 
-        println!("{:?}\n{} {}",last_update, message_id, tmp_id);
-
-        if tmp_id<=message_id || message_id==0 {
-            message_id=tmp_id;
-        } else {
+        if tmp_id>message_id && message_id!=last_id {
             message_contents=String::from(last_update["message"]["text"].as_str().unwrap());
             
             break;
+        } else if tmp_id>message_id {
+            message_id=tmp_id
         }
 
         sleep(Duration::from_secs(5));        
@@ -72,9 +67,9 @@ fn wait_new_message(last_id:i64)->Message{
 fn main() {
     // let res=send_message(String::from("message"), tg_api_key, tg_chat_id);
     let mut last_id=0;
-    while true {
-        let _ = send_message(String::from("loop"));
+    loop {
         let res=wait_new_message(last_id);
+        let _ = send_message(String::from("output"));
 
         println!("{}",res.text);
 
