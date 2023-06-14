@@ -1,14 +1,13 @@
 use std::collections::HashMap;
-use std::fmt::format;
 use std::time::Duration;
 use std::thread::sleep;
-use std::process::{Command, Output};
+use std::process::Command;
 
 // use serde_json;
 use reqwest;
 use serde_json::Value;
 
-static CHAT_ID:i64=***REMOVED***;
+static CHAT_ID:i64=0;
 static API_KEY:&str="***REMOVED***";
 static MSG_LIMIT:i16=4_000;
 
